@@ -6,7 +6,7 @@ var Download = require('../module/download.js');
 //var Crypto = require('crypto');
 //var Md5 = Crypto.createHash('md5',32);
 var myHost = 'http://www.mr18.me/';
-var requestUrl = 'http://www.jianshu.com';
+var requestUrl = 'http://www.cnblogs.com';
 var getRequestUrl = function (url) {
     url = (url || '').replace(/^\/*/, '');
     return url ? 'http://' + url : requestUrl;
@@ -28,10 +28,10 @@ var render = function (req, res) {
             html = html.replace(hrefRe, function ($0, $1, $2, $3) {
                 var urlHost = ( $2.match(HostRe) || [])[3];
                 var newHref = $2.replace(HostRe, '').replace(/^\/+/, '');
-                if (urlHost) {
-                    newHref = myHost + urlHost + '/' + newHref
-                } else {
-                    newHref = myHost + mainHost + '/' + newHref
+                if (!/^(#|javascript:)[^/]*/.test(newHref)) {
+                    newHref = myHost + (urlHost ? urlHost : mainHost) + '/' + newHref
+                }else{
+                    newHref = $2;
                 }
                 return $1 + newHref + $3
             });
