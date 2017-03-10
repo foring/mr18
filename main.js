@@ -20,7 +20,4 @@ App.get('*', function (req, res, next) {
 })
 App.use(Index);
 App.listen(8888);
-
-
-//require('./app/blue.js');
 console.log('running........... \t port : 8888');

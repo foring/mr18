@@ -27,7 +27,7 @@ var render = function (req, res) {
             html = html.replace(/[\n\t\f\r]*/g, '')
             html = html.replace(hrefRe, function ($0, $1, $2, $3) {
                 var urlHost = ( $2.match(HostRe) || [])[3];
-                var newHref = $2.replace(hostArr, '').replace(/^\/+/, '');
+                var newHref = $2.replace(HostRe, '').replace(/^\/+/, '');
                 if (urlHost) {
                     newHref = myHost + urlHost + '/' + newHref
                 } else {
