@@ -2,11 +2,11 @@
  * Created by mr18 on 17.3.10.
  */
 
-var cheerio = require('cheerio');
 var Download = require('../module/download.js');
+//var Crypto = require('crypto');
+//var Md5 = Crypto.createHash('md5',32);
 var myHost = 'http://www.mr18.me/';
 var requestUrl = 'http://www.jianshu.com';
-
 var getRequestUrl = function (url) {
     url = (url || '').replace(/^\/*/, '');
     return url ? 'http://' + url : requestUrl;
@@ -19,6 +19,7 @@ var render = function (req, res) {
     var url = getRequestUrl(req.url);
     var hostArr = url.match(HostRe) || [];
     var mainHost = hostArr[3];
+
     //有host
     if (mainHost) {
         Download(url, function (html) {
