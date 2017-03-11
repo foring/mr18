@@ -46,21 +46,15 @@ var render = function (req, res) {
     var url = getRequestUrl(req.url);
     var hostArr = url.match(HostRe) || [];
     var mainHost = hostArr[3];
-    //有host
-    if (mainHost) {
-        Download(url, function (html) {
-            html = replaceHref(html);
-            if (!html) {
-                errorPage(req, res);
-            } else {
-                renderPage(req, res, html);
-            }
 
-        })
-    } else {
-        errorPage(req, res);
+    if (!mainHost) {
+        return errorPage(req, res);
     }
-
+    //有host
+    Download(url, function (html) {
+        html = replaceHref(html);
+        html ? renderPage(req, res, html) : errorPage(req, res);
+    });
 }
 
 
