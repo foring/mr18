@@ -3,58 +3,51 @@
  */
 
 var Download = require('../module/download.js');
-var CONSTANT = render('./constant.js');
+var CONST = require('./constant.js');
 
-var getRequestUrl = function (url) {
-    url = (url || '').replace(/^\/*/, '');
-    return url ? 'http://' + url : CONSTANT.REQUEST_URL;
-}
-var HostRe = /^(http:|https:)*(\/\/)*([^\/]+)/;
-var hrefRe = /(<a[^>]+href=\")([^\"]+)([^>]*)/ig;
-var headRe = /(<head.*)(<\/head>)/;
+var Core = require('./core.js');
+var DB = require('./db.js');
 
 var errorPage = function (req, res) {
-    var html = CONSTANT.ERROR_PAGE.replace(headRe, function ($0, $1, $2) {
-        return $1 + CONSTANT.SITE_SCRIPT + $2;
+    var html = CONST.ERROR_PAGE.replace(Core.headRe, function ($0, $1, $2) {
+        return $1 + CONST.SITE_SCRIPT + $2;
     })
     res.status(404);
     res.send(html);
 }
 var renderPage = function (req, res, html) {
-    html = CONSTANT.ERROR_PAGE.replace(headRe, function ($0, $1, $2) {
-        return $1 + CONSTANT.SITE_SCRIPT + $2;
+    html = html.replace(CONST.headRe, function ($0, $1, $2) {
+        return $1 + CONST.SITE_SCRIPT + $2;
     })
     res.status(200);
     res.send(html);
 }
-
-var replaceHref = function (html) {
-    html = html || '';
-    html = html.replace(/[\n\t\f\r]*/g, '').replace(hrefRe, function ($0, $1, $2, $3) {
-        var urlHost = ( $2.match(HostRe) || [])[3];
-        var newHref = $2.replace(HostRe, '').replace(/^\/+/, '');
-        if (!/^(#|javascript:)[^/]*/.test(newHref)) {
-            newHref = CONSTANT.MY_HOST + (urlHost ? urlHost : mainHost) + '/' + newHref
-        } else {
-            newHref = $2;
-        }
-        return $1 + newHref + $3
-    });
-    return html;
-}
 var render = function (req, res) {
-    var url = getRequestUrl(req.url);
-    var hostArr = url.match(HostRe) || [];
+    CONST.MY_HOST = CONST.MY_HOST || ('//' + req.headers.host + '/');
+    var url = Core.getRequestUrl(req);
+    var hostArr = url.match(CONST.hostRe) || [];
     var mainHost = hostArr[3];
-
+    //console.log(req.url, mainHost)
+    //url中不包含host
     if (!mainHost) {
         return errorPage(req, res);
     }
     //有host
+
     Download(url, function (html) {
-        html = replaceHref(html);
+        html = html || '';
+        var path = url.replace(/(#.*)|(\?.*)/, '').replace(/\/+$/, '');
+        html = Core.replaceHref(html, mainHost, path);
+        html = Core.replaceResources(html, mainHost, path);
+        html = Core.replaceSrc(html, mainHost, path);
         html ? renderPage(req, res, html) : errorPage(req, res);
+
+        //将url保存值本地
+        var saveUrl = 'http:' + CONST.MY_HOST + (req.url || '').replace(/^\/+/, '');
+        DB.saveUrl(saveUrl);
     });
+
+
 }
 
 
