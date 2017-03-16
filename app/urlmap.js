@@ -53,7 +53,15 @@ var getHostMap = function (host) {
         code: hostMap[host]
     };
 }
+var getHostByCode = function (code) {
+    return codeMap[code]
+}
+var getCodeByHost = function (host) {
+    return getHostMap(host).code
+}
 module.exports = {
-    getHostMap: getHostMap
+    getHostMap: getHostMap,
+    getCodeByHost: getCodeByHost,
+    getHostByCode: getHostByCode
 }
 

@@ -5,22 +5,21 @@ var CONST = require('./constant.js');
 var UrlMap = require('./urlmap.js');
 
 var replaceHref = function (html, host, path) {
-    var Map = UrlMap.getHostMap(host);
+    var hostCode = UrlMap.getCodeByHost(host);
     return html.replace(/[\n\t\f\r]*/g, '').replace(CONST.hrefRe, function ($0, $1, $2) {
         var urlHost = ( $2.match(CONST.hostRe) || [])[3];
-        var Map2 = UrlMap.getHostMap(host);
-
+        var hostCode2 = UrlMap.getCodeByHost(urlHost);
         var newHref = $2.replace(CONST.hostRe, '').replace(/^\/+/, '');
         //相对路径
         if (!urlHost && CONST.dirSourceRe.test($2)) {
             if ($2.charAt(0) == '/') {
-                newHref = Map.code + '/' + newHref;
+                newHref = hostCode + '/' + newHref;
             } else {
-                newHref = Map.code + '/' + newHref;
+                newHref = hostCode + '/' + newHref;
             }
             newHref = CONST.MY_HOST + newHref;
         } else if (!/^(#|javascript:)[^/]*/.test(newHref)) {
-            newHref = CONST.MY_HOST + (urlHost ? urlHost : '') + '/' + newHref
+            newHref = CONST.MY_HOST + (urlHost ? hostCode2 : '') + '/' + newHref
         } else {
             newHref = $2;
         }
@@ -62,10 +61,15 @@ var replaceSrc = function (html, host, path) {
 var getRequestUrl = function (req) {
     var url = (req.url || '').replace(/^\/+/, '');
     var urlHost = ( url.match(CONST.hostRe) || [])[3];
+    var host = UrlMap.getHostByCode((url.match(/\w+/) || [])[0]);
+    if (!host) {
+        host = urlHost;
+        UrlMap.getHostMap(urlHost);
+    }
     if (url) {
         //url中包含域名
-        if (urlHost) {
-            url = 'http://' + url;
+        if (host) {
+            url = 'http://' + host + '/' + url.replace(CONST.hostRe, '');
         } else {
             url = 'http://' + CONST.MY_HOST + url;
         }
