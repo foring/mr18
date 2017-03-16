@@ -39,6 +39,7 @@ var initData = function () {
 }
 initData();
 var getHostMap = function (host) {
+    if (/^#/.test(host)) return;
     if (!hostMap[host]) {
         var code = encodeStr(host);
         hostMap[host] = code;
@@ -57,7 +58,7 @@ var getHostByCode = function (code) {
     return codeMap[code]
 }
 var getCodeByHost = function (host) {
-    return getHostMap(host).code
+    return (getHostMap(host) || {}).code
 }
 module.exports = {
     getHostMap: getHostMap,
