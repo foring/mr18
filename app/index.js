@@ -25,6 +25,7 @@ var renderPage = function (req, res, html) {
 var render = function (req, res) {
     CONST.MY_HOST = CONST.MY_HOST || ('//' + req.headers.host + '/');
     var url = Core.getRequestUrl(req);
+    //console.log(url)
     var hostArr = url.match(CONST.hostRe) || [];
     var mainHost = hostArr[3];
     //console.log(req.url, mainHost)
